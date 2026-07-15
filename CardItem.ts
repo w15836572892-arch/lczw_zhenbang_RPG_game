@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CardItem —— 单张卡牌组件
  *
  * 挂载在卡牌 Prefab 的根节点上，根据传入的卡牌数据和背包模式，
@@ -46,7 +46,7 @@ export enum CardQuality {
  * meaning          —— 文字释义
  */
 export interface ICardData {
-    id: number;
+    id: string;
     character: string;
     pinyin: string;
     quality: CardQuality;
@@ -204,6 +204,43 @@ export class CardItem extends Component {
         this._currentMode = mode;
         this.applyModeVisibility(mode);
         console.log(`[CardItem] 模式切换为 ${mode === BagMode.STUDY_MODE ? '图鉴学习' : '占卜答题'}`);
+    }
+
+    // ======================== 异步图片更新接口 ========================
+
+    /**
+     * setOracleSprite —— 设置甲骨文原图 Sprite
+     *
+     * 由 BagUI 在异步加载图片资源后调用，更新卡面上的甲骨文图形。
+     *
+     * @param spriteFrame - 已加载的甲骨文图 SpriteFrame
+     */
+    public setOracleSprite(spriteFrame: SpriteFrame): void {
+        if (this.oracleBoneSprite) {
+            this.oracleBoneSprite.spriteFrame = spriteFrame;
+        }
+    }
+
+    /**
+     * addEvolutionSprite —— 追加字形演变图 Sprite
+     *
+     * 每次调用会在字形演变容器中查找下一个可用的 Sprite 子节点并赋值。
+     * 如果所有子节点已用完，则跳过加载的图片。
+     *
+     * @param spriteFrame - 已加载的演变图 SpriteFrame
+     */
+    public addEvolutionSprite(spriteFrame: SpriteFrame): void {
+        if (!this.evolutionContainer) {
+            return;
+        }
+        const children: Node[] = this.evolutionContainer.children;
+        for (const child of children) {
+            const spriteComp: Sprite | null = child.getComponent(Sprite);
+            if (spriteComp && !spriteComp.spriteFrame) {
+                spriteComp.spriteFrame = spriteFrame;
+                return;
+            }
+        }
     }
 // ======================== 生命周期 ========================
 
