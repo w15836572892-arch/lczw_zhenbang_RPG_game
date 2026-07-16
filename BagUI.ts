@@ -20,7 +20,6 @@
 import { _decorator, Component, Node, Label, Prefab, ScrollView, instantiate, Layout, SpriteFrame, resources } from 'cc';
 import { BagMode, CardQuality, CardItem, ICardData } from './CardItem';
 import { PlayerDataService } from './core/PlayerDataService';
-import { CocosSaveStorage } from './core/cocos-storage';
 import { oracleCards } from './core/data';
 import type { OracleCard, CardRarity } from './core/models';
 
@@ -74,22 +73,15 @@ export class BagUI extends Component {
 
     // ======================== 数据服务访问器 ========================
 
-    /**
-     * 获取 / 懒初始化 PlayerDataService 实例
-     *
-     * 使用 Cocos Creator 的 sys.localStorage 作为持久化存储。
-     * GameManager 等外部组件可通过此访问器共享同一个服务实例。
-     */
     public get cardService(): PlayerDataService {
         if (!this._cardService) {
-            this._cardService = PlayerDataService.load(new CocosSaveStorage());
+            throw new Error('[BagUI] PlayerDataService 尚未注入，请先调用 setCardService()');
         }
         return this._cardService;
     }
 
     /**
      * 允许外部注入已存在的 PlayerDataService 实例
-     * （例如 GameManager 在启动时已创建了服务，避免重复加载）
      */
     public setCardService(service: PlayerDataService): void {
         this._cardService = service;
@@ -102,6 +94,12 @@ export class BagUI extends Component {
      */
     public start(): void {
         console.log('[BagUI] 背包界面初始化开始');
+
+        // 确保 PlayerDataService 已注入
+        if (!this._cardService) {
+            console.warn('[BagUI] PlayerDataService 未注入，背包初始化推迟 — 请调用 setCardService() 后在适当时机手动调用 refresh()');
+            return;
+        }
 
         // 直接调用公共刷新方法，读取并渲染初始背包
         this.refresh();
@@ -131,7 +129,7 @@ export class BagUI extends Component {
         console.log('[BagUI] 正在执行背包数据重绘...');
 
         // 1. 从 PlayerDataService 获取最新卡牌 ID 列表
-        const ownedIds: string[] = this.cardService.profile.ownedCardIds;
+        const ownedIds: readonly string[] = this.cardService.getOwnedCardIds();
 
         // 2. 根据 ID 在 oracleCards 常量表中查找完整数据
         const ownedCards: OracleCard[] = ownedIds
