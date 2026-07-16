@@ -28,7 +28,10 @@
 - `core/PlayerDataService.ts`：资源、答题、背包、错题与存档规则。
 - `core/RankService.ts`：五阶段位计算。
 - `core/storage.ts`：与引擎无关的存储接口及内存测试实现。
+- `core/cocos-storage.ts`：Cocos Creator `sys.localStorage` 本地存档适配器。
 - `tests/`：核心业务规则自动化测试。
+
+> `PlayerData.ts` 是旧版兼容代码，仅为尚未迁移的脚本临时保留。所有新功能必须使用 `core/PlayerDataService.ts`，不得继续读写旧版 `bagCards`。
 
 ## 运行测试
 
@@ -40,6 +43,6 @@ npm test
 
 Node.js 直接运行 TypeScript 类型擦除测试，不需要安装 Cocos Creator，也不需要下载第三方依赖。
 
-## 后续接入 Cocos
+## Cocos 本地存档
 
-确定 Cocos Creator 版本后，实现一个基于 `sys.localStorage` 的 `SaveStorage`，并由场景/UI 调用 `PlayerDataService`。核心数据层本身不引用 `cc`。
+`core/cocos-storage.ts` 已经实现基于 `sys.localStorage` 的 `SaveStorage`。Cocos 场景和 UI 应通过该适配器加载 `PlayerDataService`；核心数据层本身仍不引用 `cc`，便于独立测试。

@@ -26,6 +26,11 @@ import type { OracleCard, CardRarity } from './core/models';
 
 const { ccclass, property } = _decorator;
 
+/** 按卡片 ID 建立只读索引，避免刷新背包时反复遍历完整字库。 */
+const ORACLE_CARD_BY_ID: ReadonlyMap<string, OracleCard> = new Map(
+    oracleCards.map(card => [card.id, card])
+);
+
 // ======================== 类型映射工具函数 ========================
 
 /** 将 core models 的稀有度字符串转为 CardItem 的 CardQuality 枚举 */
@@ -135,11 +140,11 @@ export class BagUI extends Component {
 
         // 2. 根据 ID 在 oracleCards 常量表中查找完整数据
         const ownedCards: OracleCard[] = ownedIds
-            .map(id => oracleCards.find(card => card.id === id))
+            .map(id => ORACLE_CARD_BY_ID.get(id))
             .filter((card): card is OracleCard => card !== undefined);
 
         if (ownedCards.length < ownedIds.length) {
-            const missing = ownedIds.filter(id => !oracleCards.find(c => c.id === id));
+            const missing = ownedIds.filter(id => !ORACLE_CARD_BY_ID.has(id));
             console.warn('[BagUI] 以下卡牌 ID 在 oracleCards 中未找到，已跳过渲染：' + missing.join(', '));
         }
 
@@ -170,7 +175,7 @@ export class BagUI extends Component {
             character: card.modernChar,
             pinyin: card.pronunciation,
             quality: rarityToQuality(card.rarity),
-            oracleBoneSprite: null as any,
+            oracleBoneSprite: null,
             evolutionSprites: [],
             meaning: card.originalMeaning + '。' + card.modernMeaning,
         };
@@ -239,7 +244,7 @@ export class BagUI extends Component {
             this._cardItems.push(cardItem);
 
             // 触发异步图片加载
-            const sourceCard = oracleCards.find(c => c.id === data.id);
+            const sourceCard = ORACLE_CARD_BY_ID.get(data.id);
             if (sourceCard) {
                 this.loadCardSprites(cardItem, sourceCard);
             }

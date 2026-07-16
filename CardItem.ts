@@ -50,7 +50,7 @@ export interface ICardData {
     character: string;
     pinyin: string;
     quality: CardQuality;
-    oracleBoneSprite: SpriteFrame;
+    oracleBoneSprite: SpriteFrame | null;
     evolutionSprites?: SpriteFrame[];
     meaning?: string;
 }

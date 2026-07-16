@@ -44,6 +44,19 @@ test('divination only spends ink on correct answer', () => {
     assert.deepEqual([player.profile.ink, player.profile.coins, player.profile.rankExp], [80, 10, 10]);
 });
 
+test('divination with insufficient ink is rejected without changing history', () => {
+    const player = new PlayerDataService(new MemorySaveStorage());
+    const q = question('Q-DIV-DAY-001');
+    player.addInk(-100);
+    const result = player.answer(q, 'OBC-001');
+    assert.equal(result.accepted, false);
+    assert.equal(result.reason, 'insufficient-ink');
+    assert.equal(player.profile.ink, 0);
+    assert.equal(player.profile.coins, 0);
+    assert.equal(player.profile.rankExp, 0);
+    assert.equal(player.profile.questionRecords.length, 0);
+});
+
 test('errors accumulate and become corrected after a correct retry', () => {
     const player = new PlayerDataService(new MemorySaveStorage());
     const q = question('Q-FIELD-MOON-001');

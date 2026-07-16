@@ -1,12 +1,13 @@
 /**
- * PlayerData —— 玩家全局数据管理单例
+ * PlayerData —— 玩家全局数据管理单例（旧版兼容代码）
  *
  * 集中管理玩家的所有持久化运行时数据，包括：
  * - 墨料（inkCount）
  * - 背包甲骨文卡片（bagCards）
  * - 错题记录（errorBook）
  *
- * 整个游戏生命周期内只存在一个实例，通过 PlayerData.getInstance() 获取。
+ * @deprecated 新功能禁止继续使用本类。
+ * 请统一改用 core/PlayerDataService.ts；本文件仅为尚未迁移的旧脚本临时保留。
  */
 
 export default class PlayerData {
@@ -17,8 +18,8 @@ export default class PlayerData {
     private static _instance: PlayerData | null = null;
 
     /**
-     * 获取 PlayerData 单例
-     * 如果实例尚未创建，则自动创建并返回。
+     * 获取旧版 PlayerData 单例。
+     * 仅供尚未迁移的旧脚本使用；新代码请使用 PlayerDataService。
      */
     public static getInstance(): PlayerData {
         if (PlayerData._instance === null) {
@@ -45,8 +46,8 @@ export default class PlayerData {
     // ======================== 构造方法 ========================
 
     /**
-     * 构造方法（私有，防止外部直接 new）
-     * 外部请始终使用 PlayerData.getInstance() 获取单例。
+     * 构造方法（私有，防止外部直接 new）。
+     * 旧脚本通过 getInstance() 获取；新代码不应再依赖本类。
      */
     private constructor() {
         // 初始化时无需额外逻辑，属性默认值已在声明处设定
@@ -59,9 +60,7 @@ export default class PlayerData {
      * 
      * @param amount - 要增减的数量（正数增加，负数减少）
      * 
-     * 示例：
-     *   PlayerData.getInstance().addInk(50);   // 墨料 +50
-     *   PlayerData.getInstance().addInk(-30);  // 墨料 -30
+     * 旧版兼容接口，不要在新功能中调用。
      */
     public addInk(amount: number): void {
         this.inkCount += amount;

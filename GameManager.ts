@@ -8,10 +8,10 @@
  * 通过 BagUI 暴露的 PlayerDataService 访问新核心数据层。
  */
 
-import { _decorator, Component, CCInteger, CCBoolean } from 'cc';
+import { _decorator, Component, CCBoolean } from 'cc';
 import { BagUI } from './BagUI';
-import { CocosSaveStorage } from './core/cocos-storage';
 import { PlayerDataService } from './core/PlayerDataService';
+import { questions } from './core/data';
 
 const { ccclass, property } = _decorator;
 
@@ -20,19 +20,21 @@ export class GameManager extends Component {
 
     // ========================== @property 属性区 ==========================
 
-    @property({ type: CCInteger, displayName: '探索消耗墨料', tooltip: '每次进行甲骨文探索或答题时消耗的墨料数量' })
-    public exploreCost: number = 20;
-
     @property({ type: CCBoolean, displayName: '调试模拟模式', tooltip: '开启后 start 时自动运行 simulateGameLoop 并刷新背包 UI' })
-    public debugSimulate: boolean = true;
+    public debugSimulate: boolean = false;
 
     @property({ type: BagUI, displayName: '背包界面组件' })
-    public bagUI: BagUI = null;
+    public bagUI: BagUI | null = null;
 
     // ========================== 生命周期方法 ==========================
 
     public start(): void {
         console.log('========== 游戏初始化开始 ==========');
+
+        if (!this.bagUI) {
+            console.error('[GameManager] 未绑定 BagUI，已停止初始化。请在属性面板中绑定背包界面组件。');
+            return;
+        }
 
         // 获取共享的 PlayerDataService 实例（由 BagUI 懒初始化）
         const service: PlayerDataService = this.bagUI.cardService;
@@ -59,22 +61,32 @@ export class GameManager extends Component {
      * simulateGameLoop —— 模拟核心玩法流程
      *
      * 使用新的 PlayerDataService API：
-     *   - spendInk()   → 消耗墨料
-     *   - addCard()    → 将卡牌 ID 加入背包
-     *   - answer()     → 模拟答题（自动处理奖励 / 错题记录）
+     *   - addCard() → 将卡牌 ID 加入背包
+     *   - answer()  → 按题目场景自动处理墨料、奖励和错题记录
      */
     public simulateGameLoop(): void {
         console.log('<><><><><> 核心玩法模拟测试开始 <><><><><>\n');
 
+        if (!this.bagUI) {
+            console.error('[GameManager] 未绑定 BagUI，无法运行模拟流程');
+            return;
+        }
+
         const service: PlayerDataService = this.bagUI.cardService;
 
         // ----------------------------------------
-        // 步骤 A: 消耗墨料探索
+        // 步骤 A: 野外旧字答对，获得墨料
         // ----------------------------------------
-        console.log('-------- 步骤 A: 探索甲骨文 / 答题 --------');
+        console.log('-------- 步骤 A: 野外旧字答对，获得墨料 --------');
         console.log('[GameManager] 当前墨料: ' + service.profile.ink);
-        const spent = service.spendInk(this.exploreCost);
-        console.log('[GameManager] 探索完毕，剩余墨料: ' + service.profile.ink + '（' + (spent ? '消耗成功' : '墨料不足') + '）\n');
+        const fieldQuestion = questions.find(item => item.id === 'Q-FIELD-DAY-001');
+        if (!fieldQuestion) {
+            console.error('[GameManager] 未找到野外测试题 Q-FIELD-DAY-001');
+            return;
+        }
+        const fieldResult = service.answer(fieldQuestion, fieldQuestion.correctAnswer);
+        console.log('[GameManager] 野外答题结果: ' + (fieldResult.correct ? '正确' : '错误'));
+        console.log('[GameManager] 获得墨料: ' + fieldResult.inkDelta + '，当前墨料: ' + service.profile.ink + '\n');
 
         // ----------------------------------------
         // 步骤 B: 占卜获得"日"（OBC-001）并加入收藏
@@ -92,16 +104,12 @@ export class GameManager extends Component {
         // 步骤 C: 模拟答题（答错）
         // ----------------------------------------
         console.log('-------- 步骤 C: 答错记录错题 --------');
-        const wrongResult = service.answer(
-            {
-                id: 'Q-FIELD-MOON-001', type: 'choice', subject: 'chinese', scene: 'field',
-                relatedCardIds: ['OBC-002'], difficulty: 1,
-                stem: '"月"的早期字形与哪种自然物最接近？',
-                options: ['弯月', '山峰', '树木', '鱼'],
-                correctAnswer: '弯月', explanation: '"月"的早期字形描画弯月。', inkReward: 20,
-            },
-            '山峰'
-        );
+        const moonQuestion = questions.find(item => item.id === 'Q-FIELD-MOON-001');
+        if (!moonQuestion) {
+            console.error('[GameManager] 未找到野外测试题 Q-FIELD-MOON-001');
+            return;
+        }
+        const wrongResult = service.answer(moonQuestion, '山峰');
         console.log('[GameManager] 答题结果: ' + (wrongResult.correct ? '正确' : '错误'));
         console.log('[GameManager] 错题记录数: ' + service.profile.errorRecords.length + '\n');
 
