@@ -1,4 +1,4 @@
-import type { AnswerResult, PlayerProfile, Question } from './models.ts';
+﻿import type { AnswerResult, PlayerProfile, Question } from './models.ts';
 import { rankForExp } from './RankService.ts';
 import type { SaveStorage } from './storage.ts';
 
@@ -8,7 +8,7 @@ export const SAVE_KEY = 'oracle-rpg-player-profile';
 export function createDefaultProfile(): PlayerProfile {
     return {
         saveVersion: SAVE_VERSION, ink: 100, coins: 0, rankExp: 0, rank: 'apprentice',
-        unlockedAreas: ['huan-river'], ownedCardIds: [], questionRecords: [], errorRecords: [],
+        unlockedAreas: ['huan-river'], ownedCardIds: ['OBC-001', 'OBC-002', 'OBC-003'], questionRecords: [], errorRecords: [],
     };
 }
 
