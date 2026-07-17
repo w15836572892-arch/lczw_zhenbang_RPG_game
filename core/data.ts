@@ -1,0 +1,64 @@
+﻿import type { OracleCard, Question } from './models.ts';
+
+export const oracleCards: readonly OracleCard[] = [
+    {
+        id: 'OBC-001', modernChar: '日', rarity: 'blue', areaId: 'huan-river',
+        pronunciation: 'rì', originalMeaning: '太阳', modernMeaning: '太阳、白天、日期',
+        evolutionDescription: '由太阳轮廓及中心标记逐渐演变为“日”。',
+        oracleImagePath: 'oracle/day.png', evolutionImagePaths: [],
+        curriculumPoints: ['象形字', '古文字字形演变'], relatedCardIds: ['OBC-002'],
+    },
+    {
+        id: 'OBC-002', modernChar: '月', rarity: 'blue', areaId: 'huan-river',
+        pronunciation: 'yuè', originalMeaning: '月亮', modernMeaning: '月亮、月份',
+        evolutionDescription: '由弯月轮廓逐渐演变为“月”。',
+        oracleImagePath: 'oracle/moon.png', evolutionImagePaths: [],
+        curriculumPoints: ['象形字', '古文字字形演变'], relatedCardIds: ['OBC-001'],
+    },
+    {
+        id: 'OBC-003', modernChar: '木', rarity: 'blue', areaId: 'suburbs',
+        pronunciation: 'mù', originalMeaning: '树木', modernMeaning: '树木、木头',
+        evolutionDescription: '形如一棵树，上有向外伸展的枝桠，下有扎根泥土的根系，逐渐演变为“木”。',
+        oracleImagePath: 'oracle/wood.png', evolutionImagePaths: [],
+        curriculumPoints: ['象形字', '古文字字形演变'], relatedCardIds: [],
+    },
+];
+
+export const questions: readonly Question[] = [
+    {
+        id: 'Q-FIELD-DAY-001', type: 'choice', subject: 'chinese', scene: 'field',
+        relatedCardIds: ['OBC-001'], difficulty: 1,
+        stem: '“日”的甲骨文字形最初主要表示什么？', options: ['太阳', '月亮', '河流', '麦穗'],
+        correctAnswer: '太阳', explanation: '“日”是描画太阳形状的象形字。', inkReward: 20,
+    },
+    {
+        id: 'Q-FIELD-MOON-001', type: 'choice', subject: 'chinese', scene: 'field',
+        relatedCardIds: ['OBC-002'], difficulty: 1,
+        stem: '“月”的早期字形与哪种自然物最接近？', options: ['弯月', '山峰', '树木', '鱼'],
+        correctAnswer: '弯月', explanation: '“月”的早期字形描画弯月。', inkReward: 20,
+    },
+    {
+        id: 'Q-DIV-DAY-001', type: 'oracle-drag', subject: 'history', scene: 'divination',
+        relatedCardIds: ['OBC-001'], difficulty: 2,
+        stem: '选择表示太阳的甲骨卡片。', correctAnswer: 'OBC-001',
+        explanation: '“日”的本义是太阳。', inkCost: 20, coinReward: 10, expReward: 10,
+    },
+    {
+        id: 'Q-DIV-MOON-001', type: 'oracle-drag', subject: 'history', scene: 'divination',
+        relatedCardIds: ['OBC-002'], difficulty: 2,
+        stem: '选择表示月亮的甲骨卡片。', correctAnswer: 'OBC-002',
+        explanation: '“月”的本义是月亮。', inkCost: 20, coinReward: 10, expReward: 10,
+    },
+    {
+        id: 'Q-FIELD-WOOD-001', type: 'choice', subject: 'chinese', scene: 'field',
+        relatedCardIds: ['OBC-003'], difficulty: 1,
+        stem: '“木”字的甲骨文字形看起来像什么？', options: ['一棵树', '一块物块', '一把斧头', '一朵花'],
+        correctAnswer: '一棵树', explanation: '“木”是典型的象形字，甲骨文的字形就像一棵有枝有根的树木。', inkReward: 20,
+    },
+    {
+        id: 'Q-DIV-WOOD-001', type: 'oracle-drag', subject: 'history', scene: 'divination',
+        relatedCardIds: ['OBC-003'], difficulty: 2,
+        stem: '选择表示“树木”的甲骨文卡片。', correctAnswer: 'OBC-003',
+        explanation: '甲骨文中的“木”本义即为树木。', inkCost: 20, coinReward: 10, expReward: 10,
+    },
+];
