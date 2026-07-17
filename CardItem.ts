@@ -23,6 +23,7 @@ export enum CardQuality {
 
 // ======================== 品质特效 ========================
 
+/** 各品质对应的发光颜色 */
 const QUALITY_GLOW_COLORS: Record<CardQuality, Color> = {
     [CardQuality.BLUE]: new Color(51, 153, 255),
     [CardQuality.RED]:  new Color(255, 51, 51),
@@ -206,7 +207,7 @@ export class CardItem extends Component {
         this.isSelected = !this.isSelected;
         this.updateSelectedVisual();
 
-                console.log(`[CardItem] 卡牌「${this._cardId}」选中状态变更: isSelected=${this.isSelected}`);
+        console.log(`[CardItem] 卡牌「${this._cardId}」选中状态变更: isSelected=${this.isSelected}`);
 
         // 向父节点派发自定义事件
         this.node.emit('card-selected', {

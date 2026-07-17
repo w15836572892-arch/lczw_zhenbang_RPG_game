@@ -27,6 +27,11 @@ import type { OracleCard } from './core/models';
 
 const { ccclass, property } = _decorator;
 
+/** 按卡片 ID 建立只读索引，避免刷新背包时反复遍历完整字库。 */
+const ORACLE_CARD_BY_ID: ReadonlyMap<string, OracleCard> = new Map(
+    oracleCards.map(card => [card.id, card])
+);
+
 // ======================== 背包控制器组件 ========================
 
 @ccclass('BagUI')
@@ -148,9 +153,14 @@ export class BagUI extends Component {
         // 2. 获取已拥有的卡牌
         const ownedIds: readonly string[] = this.cardService.getOwnedCardIds();
 
-        // 3. 筛选出拥有且 areaId 匹配的卡牌
+        const missingIds = ownedIds.filter(id => !ORACLE_CARD_BY_ID.has(id));
+        if (missingIds.length > 0) {
+            console.warn('[BagUI] 以下卡牌 ID 在 oracleCards 中未找到，已跳过渲染：' + missingIds.join(', '));
+        }
+
+        // 3. 通过索引筛选出拥有且 areaId 匹配的卡牌
         const matchedCards: OracleCard[] = ownedIds
-            .map(id => oracleCards.find(card => card.id === id))
+            .map(id => ORACLE_CARD_BY_ID.get(id))
             .filter((card): card is OracleCard =>
                 card !== undefined && card.areaId === areaId
             );
@@ -261,7 +271,13 @@ export class BagUI extends Component {
         }
     }
 
-    private updateModeTitle(): void { /* built into switchToStudyMode / switchToExamMode */ }
+    private updateModeTitle(): void {
+        if (this.lblModeTitle) {
+            this.lblModeTitle.string = this._currentMode === 'STUDY_MODE'
+                ? '图鉴学习模式'
+                : '占卜答题模式';
+        }
+    }
 
     // ======================== 清理 ========================
 
